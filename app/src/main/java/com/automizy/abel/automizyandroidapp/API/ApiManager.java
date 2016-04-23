@@ -1,13 +1,16 @@
 package com.automizy.abel.automizyandroidapp.API;
 
 import android.os.AsyncTask;
+import android.util.Log;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -49,6 +52,7 @@ public class ApiManager {
         wr.close();
 
     }
+
 
     private class ApiRequestParams {
         private String type;
@@ -95,56 +99,100 @@ public class ApiManager {
         }
     }
 
-    private class ApiRequest extends AsyncTask<ApiRequestParams, Void, Boolean>{
+    private class ApiRequest extends AsyncTask<ApiRequestParams, Void, String>{
 
         @Override
-        protected Boolean doInBackground(ApiRequestParams... params) {
+        protected String doInBackground(ApiRequestParams... params) {
+
+            //The result json string
+            String result = null;
+
             ApiRequestParams requestParams = params[0];
-            HttpURLConnection con = null;
+            HttpURLConnection urlConnection = null;
             try {
-                URL url = new URL(requestParams.getUrl());
-                con = (HttpURLConnection) url.openConnection();
-                con.setDoOutput(true);
-                con.setDoInput(true);
-                con.setRequestProperty("Content-Type", requestParams.getContentType());
-                con.setRequestProperty("Accept", requestParams.getAccpet());
-                con.setRequestMethod(requestParams.getType());
 
-                OutputStreamWriter wr = new OutputStreamWriter(con.getOutputStream());
-                wr.write(requestParams.getData().toString());
-                wr.flush();
+                URL url = null;
+                try {
+                    url = new URL(requestParams.getUrl());
+                    urlConnection = (HttpURLConnection) url.openConnection();
+                    urlConnection.setDoOutput(true);
+                    urlConnection.setDoInput(true);
+                    urlConnection.setRequestProperty("Content-Type", requestParams.getContentType());
+                    urlConnection.setRequestProperty("Accept", requestParams.getAccpet());
+                    urlConnection.setRequestMethod(requestParams.getType());
+                } catch (MalformedURLException e) {
+                    e.printStackTrace();
+                    return null;
+                } catch (ProtocolException e) {
+                    e.printStackTrace();
+                    return null;
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    return null;
+                }
 
-                StringBuilder sb = new StringBuilder();
-                int HttpResult = con.getResponseCode();
-                if (HttpResult == HttpURLConnection.HTTP_OK) {
-                    BufferedReader br = new BufferedReader(
-                            new InputStreamReader(con.getInputStream(), "utf-8"));
-                    String line = null;
-                    while ((line = br.readLine()) != null) {
-                        sb.append(line + "\n");
+
+                //Sending the POST request
+                OutputStream os = null;
+
+                try {
+                    os = urlConnection.getOutputStream();
+                    os.write(requestParams.getData().toString().getBytes());
+                    os.flush();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } finally{
+                    os.close();
+                }
+
+                //Reading the response
+                InputStream is = null;
+                BufferedReader rd  = null;
+                StringBuilder sb = null;
+                String line = null;
+
+                try {
+                    //Checking response code
+                    int responseCode = urlConnection.getResponseCode();
+
+                    //If request was successful reading response
+                    if (responseCode == HttpURLConnection.HTTP_OK) {
+                        is = urlConnection.getInputStream();
+                        rd = new BufferedReader(new InputStreamReader(is));
+                        sb = new StringBuilder();
+                        while ((line = rd.readLine()) != null) {
+                            sb.append(line + '\n');
+                        }
+                    } else {
+
+                        //IF request wasnt successful logging error
+                        Log.e("ResponseMessage", ((Integer) responseCode).toString() + " - " + urlConnection.getResponseMessage());
+                        is = urlConnection.getErrorStream();
+                        rd = new BufferedReader(new InputStreamReader(is));
+                        sb = new StringBuilder();
+                        while ((line = rd.readLine()) != null) {
+                            sb.append(line + '\n');
+                        }
                     }
-                    br.close();
-                    System.out.println("" + sb.toString());
-                } else {
-                    System.out.println(con.getResponseMessage());
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
-                return true;
 
-            } catch (MalformedURLException e) {
+                //If everything went well we convert the response to json string
+                result = sb.toString();
+
+            }catch (Exception e){
                 e.printStackTrace();
-            } catch (ProtocolException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
+                return null;
             }
-
             finally {
-                if(con != null){
-                    con.disconnect();
-                }
+                urlConnection.disconnect();
+                return result;
             }
-
-            return false;
+        }
+        @Override
+        protected void onPostExecute(String result) {
+            super.onPostExecute(result);
         }
     }
 

@@ -5,4 +5,9 @@
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_campaigns_fragment">Hello Campaigns fragment</string>
+    <string name="hello_statistics_fragment">Hello Statistics fragment</string>
+    <string name="hello_blank_fragment">Hello Blank fragment</string>
 </resources>
