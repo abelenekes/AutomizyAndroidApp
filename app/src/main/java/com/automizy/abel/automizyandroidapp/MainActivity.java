@@ -38,19 +38,31 @@ public class MainActivity extends AppCompatActivity {
         });
 
         userManager=new UserManager();
-
-
     }
 
     private void tryLogin(){
         JSONObject userData = userManager.getUserCredentials();
         if(userData != null){
             Log.d("LOGIN DATA", userData.toString());
+            Bundle b = new Bundle();
+            try {
+                //b.putString("client_id",userData.getString("client_id"));
+                //b.putString("client_secret",userData.getString("client_secret"));
+
+                b.putString("client_id","");
+                b.putString("client_secret","");
+
+            } catch (Exception e) {
+                Log.e("LOGIN","Login failed");
+                e.printStackTrace();
+                return;
+            }
+            loginIntent.putExtras(b);
             startActivity(loginIntent);
         }
         else{
             //If no user data was saved yet start AuthActivity
-            Log.d("LOGIN ERROR", "No user data found");
+            Log.e("LOGIN ERROR", "No user data found");
         }
     }
 
