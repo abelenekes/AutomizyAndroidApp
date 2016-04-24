@@ -34,8 +34,8 @@ public class AuthActivity extends Activity {
 
     private final String OAUTH_URL = "https://api.automizy.com/oauth";
     private final String REDIRECT_URI = "automizy.android.scheme://AutomizyAndoidApp";
-    private final String CLIENT_ID = "a93b24eb7e604cb711a85594706c9685f70831a2";
-    private final String CLIENT_SECRET = "128478df1c12bda56627021dd27005847e11e870";
+    private final String APP_ID = PRIVATE_CONSTANTS.app_id;
+    private final String APP_SECRET = PRIVATE_CONSTANTS.app_secret;
     private String STATE;
 
     //WebView that will open when redirecting user to auth url
@@ -65,8 +65,8 @@ public class AuthActivity extends Activity {
         webView.loadUrl(OAUTH_URL +
                         "/authorize?redirect_uri=" + REDIRECT_URI +
                         "&response_type=code" +
-                        "&app_id=" + CLIENT_ID +
-                        "&app_secret=" + CLIENT_SECRET +
+                        "&app_id=" + APP_ID +
+                        "&app_secret=" + APP_SECRET +
                         "&state=" + STATE
         );
     }
@@ -188,8 +188,8 @@ public class AuthActivity extends Activity {
                                 //Putting all data in JSON object
                                 JSONObject data = new JSONObject();
                                 try {
-                                    data.put("app_id", CLIENT_ID);
-                                    data.put("app_secret", CLIENT_SECRET);
+                                    data.put("app_id", APP_ID);
+                                    data.put("app_secret", APP_SECRET);
                                     data.put("redirect_uri", REDIRECT_URI);
                                     data.put("code", authorizationCode);
                                     data.put("grant_type", "authorization_code");

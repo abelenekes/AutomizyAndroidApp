@@ -49,8 +49,8 @@ public class MainActivity extends AppCompatActivity {
                 //b.putString("client_id",userData.getString("client_id"));
                 //b.putString("client_secret",userData.getString("client_secret"));
 
-                b.putString("client_id","");
-                b.putString("client_secret","");
+                b.putString("client_id",PRIVATE_CONSTANTS.client_id);
+                b.putString("client_secret",PRIVATE_CONSTANTS.client_secret);
 
             } catch (Exception e) {
                 Log.e("LOGIN","Login failed");
